@@ -15,4 +15,5 @@ func NewAuthRouter(authHandler *handler.AuthHandler) *AuthRouter {
 
 func (r *AuthRouter) AuthRoutes(rg *gin.RouterGroup) {
 	rg.POST("/register", r.AuthHandler.RegisterUser)
+	rg.POST("/login", r.AuthHandler.LoginUser)
 }

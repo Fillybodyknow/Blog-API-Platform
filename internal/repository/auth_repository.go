@@ -10,7 +10,7 @@ import (
 
 type AuthRepositoryInterface interface {
 	InsertUser(ctx context.Context, user *models.User) error
-	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	FindByEmailOrUsername(ctx context.Context, emailorusername string) (*models.User, error)
 }
 
 type AuthRepository struct {
@@ -28,9 +28,9 @@ func (r *AuthRepository) InsertUser(ctx context.Context, user *models.User) erro
 	return err
 }
 
-func (r *AuthRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *AuthRepository) FindByEmailOrUsername(ctx context.Context, emailorusername string) (*models.User, error) {
 	var user models.User
-	err := r.Collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	err := r.Collection.FindOne(ctx, bson.M{"$or": []bson.M{{"email": emailorusername}, {"username": emailorusername}}}).Decode(&user)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {

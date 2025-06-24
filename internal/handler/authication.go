@@ -22,6 +22,11 @@ type RegisterInput struct {
 	Password string `json:"password" form:"password" binding:"required"`
 }
 
+type LoginUserInput struct {
+	Username string `json:"username" form:"username" binding:"required"`
+	Password string `json:"password" form:"password" binding:"required"`
+}
+
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 
 	var input RegisterInput
@@ -47,4 +52,23 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "Registered successfully"})
 
+}
+
+func (h *AuthHandler) LoginUser(c *gin.Context) {
+	var input LoginUserInput
+
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+
+	user, token, err := h.AuthServiceInterface.Login(c, input.Username, input.Password)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"user_id": user.ID, "role": user.Role, "token": token})
 }
