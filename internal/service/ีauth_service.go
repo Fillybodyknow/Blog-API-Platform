@@ -3,16 +3,29 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/Fillybodyknow/blog-api/internal/models"
 	"github.com/Fillybodyknow/blog-api/internal/repository"
 	"github.com/Fillybodyknow/blog-api/pkg/utility"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type OTPVerify struct {
+	Email     string
+	OTP       string
+	ExpiredAt time.Time
+}
+
+var StoreOTP []OTPVerify
 
 type AuthServiceInterface interface {
 	Register(ctx context.Context, user *models.User) error
 	Login(ctx context.Context, username string, password string) (models.User, string, error)
+	SendOTP(UserID primitive.ObjectID, ctx context.Context) error
+	VerifyOTP(UserID primitive.ObjectID, otp string) error
 }
 
 type AuthService struct {
@@ -63,4 +76,62 @@ func (s *AuthService) Login(ctx context.Context, username string, password strin
 	}
 
 	return *user, token, nil
+}
+
+func (s *AuthService) SendOTP(UserID primitive.ObjectID, ctx context.Context) error {
+	FoundUser, err := s.AuthRepository.FindUserByID(ctx, UserID)
+	var newStore []OTPVerify
+	if err != nil {
+		return err
+	}
+	if FoundUser == nil {
+		return errors.New("ไม่สามารถส่ง OTP ได้")
+	}
+	StoreOTP = newStore
+	OTP := utility.GenerateOTP()
+	err = utility.SendEmail(FoundUser.Email, "OTP สำหรับยืนยันตัวตน", fmt.Sprintf("รหัส OTP คือ %s", OTP))
+	if err != nil {
+		return errors.New("ไม่สามารถส่ง OTP ได้")
+	}
+	for _, v := range StoreOTP {
+		if v.Email != FoundUser.Email {
+			newStore = append(newStore, v)
+		}
+	}
+	StoreOTP = newStore
+	StoreOTP = append(StoreOTP, OTPVerify{Email: FoundUser.Email, OTP: OTP, ExpiredAt: time.Now().Add(time.Minute * 5)})
+	return nil
+}
+
+func (s *AuthService) VerifyOTP(userID primitive.ObjectID, otp string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	user, err := s.AuthRepository.FindUserByID(ctx, userID)
+	if err != nil || user == nil {
+		return errors.New("ไม่สามารถยืนยัน OTP ได้")
+	}
+
+	found := false
+	var newStore []OTPVerify
+
+	for _, v := range StoreOTP {
+
+		if v.Email == user.Email && v.OTP == otp && v.ExpiredAt.After(time.Now()) {
+
+			err := s.AuthRepository.UpdateVerifyUser(ctx, userID)
+			if err != nil {
+				return errors.New("ไม่สามารถอัปเดตสถานะยืนยันบัญชีได้")
+			}
+			found = true
+			continue
+		}
+		newStore = append(newStore, v)
+	}
+
+	StoreOTP = newStore
+	if !found {
+		return errors.New("OTP ไม่ถูกต้องหรือหมดอายุแล้ว")
+	}
+	return nil
 }

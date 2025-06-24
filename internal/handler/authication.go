@@ -6,6 +6,7 @@ import (
 	"github.com/Fillybodyknow/blog-api/internal/models"
 	"github.com/Fillybodyknow/blog-api/internal/service"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type AuthHandler struct {
@@ -71,4 +72,45 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"user_id": user.ID, "role": user.Role, "token": token})
+}
+
+func (h *AuthHandler) OTP(c *gin.Context) {
+	UserIDStr, _ := c.Get("user_id")
+	objID, err := primitive.ObjectIDFromHex(UserIDStr.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.AuthServiceInterface.SendOTP(objID, c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "ส่ง OTP สําเร็จ"})
+}
+
+type VerifyOTPInput struct {
+	OTP string `json:"otp" form:"otp" binding:"required"`
+}
+
+func (h *AuthHandler) VerifyOTP(c *gin.Context) {
+	UserIDStr, _ := c.Get("user_id")
+	objID, err := primitive.ObjectIDFromHex(UserIDStr.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	var input VerifyOTPInput
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.AuthServiceInterface.VerifyOTP(objID, input.OTP)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "ยืนยัน OTP สําเร็จ"})
 }

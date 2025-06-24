@@ -33,6 +33,8 @@ func main() {
 	api := r.Group("/api")
 	authGroup := api.Group("/auth")
 	authRouter.AuthRoutes(authGroup)
+	authRouter.OTPRoutes(authGroup)
+
 	port := os.Getenv("PORT")
 	r.Run(":" + port)
 }
