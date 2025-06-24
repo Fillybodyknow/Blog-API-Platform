@@ -80,26 +80,33 @@ func (s *AuthService) Login(ctx context.Context, username string, password strin
 
 func (s *AuthService) SendOTP(UserID primitive.ObjectID, ctx context.Context) error {
 	FoundUser, err := s.AuthRepository.FindUserByID(ctx, UserID)
+	if err != nil || FoundUser == nil {
+		return errors.New("ไม่พบบัญชีผู้ใช้")
+	}
 	var newStore []OTPVerify
-	if err != nil {
-		return err
-	}
-	if FoundUser == nil {
-		return errors.New("ไม่สามารถส่ง OTP ได้")
-	}
-	StoreOTP = newStore
-	OTP := utility.GenerateOTP()
-	err = utility.SendEmail(FoundUser.Email, "OTP สำหรับยืนยันตัวตน", fmt.Sprintf("รหัส OTP คือ %s", OTP))
-	if err != nil {
-		return errors.New("ไม่สามารถส่ง OTP ได้")
-	}
 	for _, v := range StoreOTP {
+		if v.Email == FoundUser.Email && v.ExpiredAt.After(time.Now().Add(-1*time.Minute)) {
+			return errors.New("กรุณารอสักครู่ก่อนขอ OTP ใหม่")
+		}
 		if v.Email != FoundUser.Email {
 			newStore = append(newStore, v)
 		}
 	}
 	StoreOTP = newStore
-	StoreOTP = append(StoreOTP, OTPVerify{Email: FoundUser.Email, OTP: OTP, ExpiredAt: time.Now().Add(time.Minute * 5)})
+
+	OTP := utility.GenerateOTP()
+
+	err = utility.SendEmail(FoundUser.Email, "OTP สำหรับยืนยันตัวตน", fmt.Sprintf("รหัส OTP คือ %s", OTP))
+	if err != nil {
+		return errors.New("ไม่สามารถส่ง OTP ได้")
+	}
+
+	StoreOTP = append(StoreOTP, OTPVerify{
+		Email:     FoundUser.Email,
+		OTP:       OTP,
+		ExpiredAt: time.Now().Add(5 * time.Minute),
+	})
+
 	return nil
 }
 
