@@ -2,21 +2,31 @@ package utility
 
 import (
 	"fmt"
+	"net/mail"
 	"net/smtp"
 	"os"
 )
 
-func SendEmail(to, subject, body string) error {
-	from := os.Getenv("SMTP_FROM")
+func SendEmail(toEmail, subject, body string) error {
+	from := mail.Address{Name: "Blog API Platform", Address: os.Getenv("SMTP_EMAIL")}
 	pass := os.Getenv("SMTP_PASS")
 	host := os.Getenv("SMTP_HOST")
 	port := os.Getenv("SMTP_PORT")
 
-	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n\n%s", from, to, subject, body)
+	to := mail.Address{Name: "", Address: toEmail}
 
-	auth := smtp.PlainAuth("", from, pass, host)
-	addr := fmt.Sprintf("%s:%s", host, port)
+	header := make(map[string]string)
+	header["From"] = from.String()
+	header["To"] = to.String()
+	header["Subject"] = subject
 
-	err := smtp.SendMail(addr, auth, from, []string{to}, []byte(msg))
+	massage := ""
+	for k, v := range header {
+		massage += fmt.Sprintf("%s: %s\r\n", k, v)
+	}
+	massage += "\r\n" + body
+
+	auth := smtp.PlainAuth("", from.Address, pass, host)
+	err := smtp.SendMail(host+":"+port, auth, from.Address, []string{to.Address}, []byte(massage))
 	return err
 }
