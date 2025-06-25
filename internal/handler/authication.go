@@ -17,20 +17,9 @@ func NewAuthHandler(authService service.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{AuthServiceInterface: authService}
 }
 
-type RegisterInput struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Email    string `json:"email" form:"email" binding:"required,email"`
-	Password string `json:"password" form:"password" binding:"required"`
-}
-
-type LoginUserInput struct {
-	Username string `json:"username" form:"username" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
-}
-
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 
-	var input RegisterInput
+	var input models.RegisterInput
 
 	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -56,7 +45,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 }
 
 func (h *AuthHandler) LoginUser(c *gin.Context) {
-	var input LoginUserInput
+	var input models.LoginUserInput
 
 	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -90,10 +79,6 @@ func (h *AuthHandler) OTP(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "ส่ง OTP สําเร็จ"})
 }
 
-type VerifyOTPInput struct {
-	OTP string `json:"otp" form:"otp" binding:"required"`
-}
-
 func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	UserIDStr, _ := c.Get("user_id")
 	objID, err := primitive.ObjectIDFromHex(UserIDStr.(string))
@@ -102,7 +87,7 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	var input VerifyOTPInput
+	var input models.VerifyOTPInput
 	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

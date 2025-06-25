@@ -28,12 +28,25 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	authRouter := router.NewAuthRouter(authHandler)
 
+	PostCollection := db.Database(DBName).Collection("posts")
+	TagCollection := db.Database(DBName).Collection("tags")
+	tagRepo := repository.NewTagRepository(TagCollection)
+	postRepo := repository.NewPostRepository(PostCollection)
+	postService := service.NewPostService(postRepo, tagRepo)
+	postHandler := handler.NewPostHandler(postService)
+	postRouter := router.NewPostRouter(postHandler)
+
 	r := gin.Default()
 
 	api := r.Group("/api")
+
 	authGroup := api.Group("/auth")
 	authRouter.AuthRoutes(authGroup)
 	authRouter.OTPRoutes(authGroup)
+
+	postGroup := api.Group("/posts")
+	postRouter.PostRoutes(postGroup)
+	postRouter.PostMiddlewareRoutes(postGroup)
 
 	port := os.Getenv("PORT")
 	r.Run(":" + port)
