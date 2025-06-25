@@ -15,6 +15,11 @@ func NewPostRouter(postHandler *handler.PostHandler) *PostRouter {
 }
 
 func (r *PostRouter) PostRoutes(rg *gin.RouterGroup) {
+	rg.GET("/", r.PostHandler.GetAllPosts)
+}
+
+func (r *PostRouter) PostMiddlewareRoutes(rg *gin.RouterGroup) {
 	rg.Use(middleware.AuthMiddleware())
 	rg.POST("/create", r.PostHandler.CreatePost)
+	rg.GET("/me", r.PostHandler.GetMePosts)
 }

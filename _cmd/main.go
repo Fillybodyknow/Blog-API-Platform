@@ -46,6 +46,7 @@ func main() {
 
 	postGroup := api.Group("/posts")
 	postRouter.PostRoutes(postGroup)
+	postRouter.PostMiddlewareRoutes(postGroup)
 
 	port := os.Getenv("PORT")
 	r.Run(":" + port)

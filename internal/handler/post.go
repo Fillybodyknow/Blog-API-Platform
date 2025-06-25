@@ -50,3 +50,28 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Post created successfully"})
 }
+
+func (h *PostHandler) GetAllPosts(c *gin.Context) {
+
+	posts, err := h.PostServiceInterface.GetAllPosts()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"posts": posts})
+}
+
+func (h *PostHandler) GetMePosts(c *gin.Context) {
+
+	UserIDstr, _ := c.Get("user_id")
+	UserID, _ := primitive.ObjectIDFromHex(UserIDstr.(string))
+
+	posts, err := h.PostServiceInterface.GetAuthorPosts(UserID)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"posts": posts})
+}
