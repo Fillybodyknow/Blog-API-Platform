@@ -136,3 +136,18 @@ func (h *PostHandler) EditPost(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Post edited successfully"})
 }
+
+func (h *PostHandler) DeletePost(c *gin.Context) {
+
+	idStr := c.Param("id")
+	UserID, _ := c.Get("user_id")
+	Role, _ := c.Get("role")
+
+	err := h.PostServiceInterface.DeletePostByID(idStr, UserID.(string), Role.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Post deleted successfully"})
+}

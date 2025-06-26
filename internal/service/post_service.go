@@ -18,6 +18,7 @@ type PostServiceInterface interface {
 	GetPostsFromTags(tags []string) ([]models.Post, error)
 	GetPostByID(id primitive.ObjectID) (*models.Post, error)
 	EditMePost(post *models.Post, role string, UserIDStr string, PostIDStr string) error
+	DeletePostByID(PostIDStr string, UserIDStr string, role string) error
 }
 
 type PostService struct {
@@ -161,4 +162,45 @@ func (s *PostService) EditMePost(post *models.Post, role string, UserIDStr strin
 	}
 
 	return nil
+}
+
+func (s *PostService) DeletePostByID(PostIDStr string, UserIDStr string, role string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	UserID, err := primitive.ObjectIDFromHex(UserIDStr)
+	if err != nil {
+		return err
+	}
+
+	PostID, err := primitive.ObjectIDFromHex(PostIDStr)
+	if err != nil {
+		return err
+	}
+
+	switch role {
+	case "admin":
+		if err := s.PostRepository.Delete(ctx, PostID); err != nil {
+			return errors.New("ไม่สามารถลบโพสต์ได้ ขออภัยในความไม่สะดวก")
+		}
+	case "editor":
+		PostByID, err := s.PostRepository.FindByID(ctx, PostID)
+		if err != nil {
+			return err
+		}
+		if PostByID == nil {
+			return errors.New("ไม่พบโพสต์ที่ต้องการลบ")
+		}
+		if PostByID.AuthorID != UserID {
+			return errors.New("คุณไม่สามารถลบโพสต์ของผู้อื่นได้")
+		}
+		if err := s.PostRepository.Delete(ctx, PostID); err != nil {
+			return errors.New("ไม่สามารถลบโพสต์ได้ ขออภัยในความไม่สะดวก")
+		}
+	default:
+		return errors.New("คุณไม่สามารถลบโพสต์ได้เนื่องจากยังไม่ยืนยันตัวตน")
+	}
+
+	return nil
+
 }

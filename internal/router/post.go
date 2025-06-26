@@ -24,5 +24,6 @@ func (r *PostRouter) PostMiddlewareRoutes(rg *gin.RouterGroup) {
 	rg.Use(middleware.AuthMiddleware())
 	rg.POST("/create", r.PostHandler.CreatePost)
 	rg.GET("/me", r.PostHandler.GetMePosts)
-	rg.PUT("/edit/:id", r.PostHandler.EditPost)
+	rg.PUT("/:id", r.PostHandler.EditPost)
+	rg.DELETE("/:id", r.PostHandler.DeletePost)
 }

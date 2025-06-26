@@ -17,6 +17,7 @@ type PostRepositoryInterface interface {
 	FindByTags(ctx context.Context, tags []string) ([]models.Post, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (*models.Post, error)
 	Update(ctx context.Context, id primitive.ObjectID, post *models.Post) error
+	Delete(ctx context.Context, id primitive.ObjectID) error
 }
 
 type PostRepository struct {
@@ -126,5 +127,10 @@ func (r *PostRepository) Update(ctx context.Context, id primitive.ObjectID, post
 		},
 	}
 	_, err := r.Collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	return err
+}
+
+func (r *PostRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
+	_, err := r.Collection.DeleteOne(ctx, bson.M{"_id": id})
 	return err
 }
