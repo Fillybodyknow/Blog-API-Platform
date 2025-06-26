@@ -20,3 +20,7 @@ type LoginUserInput struct {
 type VerifyOTPInput struct {
 	OTP string `json:"otp" form:"otp" binding:"required"`
 }
+
+type CommentInput struct {
+	Content string `json:"content" form:"content" validate:"required"`
+}

@@ -75,3 +75,79 @@ func (h *PostHandler) GetMePosts(c *gin.Context) {
 
 	c.JSON(200, gin.H{"posts": posts})
 }
+
+func (h *PostHandler) GetPostsFromTags(c *gin.Context) {
+
+	tags := c.Query("tags")
+
+	tagSplit := strings.Split(tags, ",")
+
+	posts, err := h.PostServiceInterface.GetPostsFromTags(tagSplit)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"posts": posts})
+}
+
+func (h *PostHandler) GetPostByID(c *gin.Context) {
+
+	idStr := c.Param("post_id")
+
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	post, err := h.PostServiceInterface.GetPostByID(id)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"post": post})
+}
+
+func (h *PostHandler) EditPost(c *gin.Context) {
+
+	var input models.PostInput
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	idStr := c.Param("post_id")
+	UserID, _ := c.Get("user_id")
+	Role, _ := c.Get("role")
+
+	EditForm := models.Post{
+		Title:   input.Title,
+		Content: input.Content,
+		Tags:    strings.Split(input.Tags, ","),
+	}
+
+	err := h.PostServiceInterface.EditMePost(&EditForm, Role.(string), UserID.(string), idStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Post edited successfully"})
+}
+
+func (h *PostHandler) DeletePost(c *gin.Context) {
+
+	idStr := c.Param("post_id")
+	UserID, _ := c.Get("user_id")
+	Role, _ := c.Get("role")
+
+	err := h.PostServiceInterface.DeletePostByID(idStr, UserID.(string), Role.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Post deleted successfully"})
+}

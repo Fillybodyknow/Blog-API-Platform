@@ -16,10 +16,14 @@ func NewPostRouter(postHandler *handler.PostHandler) *PostRouter {
 
 func (r *PostRouter) PostRoutes(rg *gin.RouterGroup) {
 	rg.GET("/", r.PostHandler.GetAllPosts)
+	rg.GET("", r.PostHandler.GetPostsFromTags)
+	rg.GET("/:post_id", r.PostHandler.GetPostByID)
 }
 
 func (r *PostRouter) PostMiddlewareRoutes(rg *gin.RouterGroup) {
 	rg.Use(middleware.AuthMiddleware())
 	rg.POST("/create", r.PostHandler.CreatePost)
 	rg.GET("/me", r.PostHandler.GetMePosts)
+	rg.PUT("/:post_id", r.PostHandler.EditPost)
+	rg.DELETE("/:post_id", r.PostHandler.DeletePost)
 }
