@@ -18,4 +18,5 @@ func (r *CommentRouter) CommentRoutes(rg *gin.RouterGroup) {
 	rg.Use(middleware.AuthMiddleware())
 	rg.POST("/:post_id/comment", r.CommentHandler.Comment)
 	rg.PUT("/:post_id/comment/:comment_id", r.CommentHandler.EditComment)
+	rg.DELETE("/:post_id/comment/:comment_id", r.CommentHandler.DeleteComment)
 }

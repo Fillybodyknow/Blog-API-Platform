@@ -52,3 +52,17 @@ func (h *CommentHandler) EditComment(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Comment edited successfully"})
 }
+
+func (h *CommentHandler) DeleteComment(c *gin.Context) {
+	PostID := c.Param("post_id")
+	CommentID := c.Param("comment_id")
+	UserID, _ := c.Get("user_id")
+
+	err := h.CommentServiceInterface.DeleteComment(PostID, CommentID, UserID.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Comment deleted successfully"})
+}
