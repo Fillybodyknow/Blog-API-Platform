@@ -11,10 +11,11 @@ import (
 )
 
 type PostRepositoryInterface interface {
-	InsertPost(ctx context.Context, post *models.Post) error
-	GetPosts(ctx context.Context) ([]models.Post, error)
-	FindPostByAuthorID(ctx context.Context, AuthorId primitive.ObjectID) ([]models.Post, error)
+	Insert(ctx context.Context, post *models.Post) error
+	Get(ctx context.Context) ([]models.Post, error)
+	FindByAuthorID(ctx context.Context, AuthorId primitive.ObjectID) ([]models.Post, error)
 	FindByTags(ctx context.Context, tags []string) ([]models.Post, error)
+	FindByID(ctx context.Context, id primitive.ObjectID) (*models.Post, error)
 }
 
 type PostRepository struct {
@@ -27,12 +28,12 @@ func NewPostRepository(collection *mongo.Collection) *PostRepository {
 	}
 }
 
-func (r *PostRepository) InsertPost(ctx context.Context, post *models.Post) error {
+func (r *PostRepository) Insert(ctx context.Context, post *models.Post) error {
 	_, err := r.Collection.InsertOne(ctx, post)
 	return err
 }
 
-func (r *PostRepository) GetPosts(ctx context.Context) ([]models.Post, error) {
+func (r *PostRepository) Get(ctx context.Context) ([]models.Post, error) {
 
 	var posts []models.Post
 
@@ -48,7 +49,7 @@ func (r *PostRepository) GetPosts(ctx context.Context) ([]models.Post, error) {
 	return posts, nil
 }
 
-func (r *PostRepository) FindPostByAuthorID(ctx context.Context, authorID primitive.ObjectID) ([]models.Post, error) {
+func (r *PostRepository) FindByAuthorID(ctx context.Context, authorID primitive.ObjectID) ([]models.Post, error) {
 	filter := bson.M{"author_id": authorID}
 
 	cursor, err := r.Collection.Find(ctx, filter)
@@ -99,4 +100,18 @@ func (r *PostRepository) FindByTags(ctx context.Context, tags []string) ([]model
 	}
 
 	return posts, nil
+}
+
+func (r *PostRepository) FindByID(ctx context.Context, id primitive.ObjectID) (*models.Post, error) {
+	var post models.Post
+
+	err := r.Collection.FindOne(ctx, bson.M{"_id": id}).Decode(&post)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, err
+		}
+		return nil, err
+	}
+	return &post, nil
+
 }

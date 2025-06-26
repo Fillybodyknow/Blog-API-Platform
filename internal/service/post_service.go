@@ -15,6 +15,7 @@ type PostServiceInterface interface {
 	GetAllPosts() ([]models.Post, error)
 	GetAuthorPosts(AuthorID primitive.ObjectID) ([]models.Post, error)
 	GetPostsFromTags(tags []string) ([]models.Post, error)
+	GetPostByID(id primitive.ObjectID) (*models.Post, error)
 }
 
 type PostService struct {
@@ -34,7 +35,7 @@ func (s *PostService) CreatePost(post *models.Post, role string) error {
 		return errors.New("คุณไม่สามารถสร้างโพสต์ได้เนื่องจากยังไม่ยืนยันตัวตน")
 	}
 
-	if err := s.PostRepository.InsertPost(ctx, post); err != nil {
+	if err := s.PostRepository.Insert(ctx, post); err != nil {
 		return errors.New("ไม่สามารถสร้างโพสต์ได้")
 	}
 
@@ -59,7 +60,7 @@ func (s *PostService) GetAllPosts() ([]models.Post, error) {
 	defer cancel()
 
 	var posts []models.Post
-	posts, err := s.PostRepository.GetPosts(ctx)
+	posts, err := s.PostRepository.Get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (s *PostService) GetAuthorPosts(authorID primitive.ObjectID) ([]models.Post
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	posts, err := s.PostRepository.FindPostByAuthorID(ctx, authorID)
+	posts, err := s.PostRepository.FindByAuthorID(ctx, authorID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,4 +93,18 @@ func (s *PostService) GetPostsFromTags(tags []string) ([]models.Post, error) {
 		return nil, errors.New("ไม่พบโพสต์ตามแท็ก")
 	}
 	return posts, nil
+}
+
+func (s *PostService) GetPostByID(id primitive.ObjectID) (*models.Post, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	post, err := s.PostRepository.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if post == nil {
+		return nil, errors.New("ไม่พบโพสต์")
+	}
+	return post, nil
 }

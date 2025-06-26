@@ -90,3 +90,22 @@ func (h *PostHandler) GetPostsFromTags(c *gin.Context) {
 
 	c.JSON(200, gin.H{"posts": posts})
 }
+
+func (h *PostHandler) GetPostByID(c *gin.Context) {
+
+	idStr := c.Param("id")
+
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	post, err := h.PostServiceInterface.GetPostByID(id)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"post": post})
+}
