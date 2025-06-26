@@ -14,6 +14,7 @@ type PostServiceInterface interface {
 	CreatePost(post *models.Post, role string) error
 	GetAllPosts() ([]models.Post, error)
 	GetAuthorPosts(AuthorID primitive.ObjectID) ([]models.Post, error)
+	GetPostsFromTags(tags []string) ([]models.Post, error)
 }
 
 type PostService struct {
@@ -75,6 +76,20 @@ func (s *PostService) GetAuthorPosts(authorID primitive.ObjectID) ([]models.Post
 	}
 	if len(posts) == 0 {
 		return nil, errors.New("ไม่พบโพสต์ของผู้ใช้")
+	}
+	return posts, nil
+}
+
+func (s *PostService) GetPostsFromTags(tags []string) ([]models.Post, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	posts, err := s.PostRepository.FindByTags(ctx, tags)
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return nil, errors.New("ไม่พบโพสต์ตามแท็ก")
 	}
 	return posts, nil
 }

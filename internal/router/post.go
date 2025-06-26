@@ -16,6 +16,7 @@ func NewPostRouter(postHandler *handler.PostHandler) *PostRouter {
 
 func (r *PostRouter) PostRoutes(rg *gin.RouterGroup) {
 	rg.GET("/", r.PostHandler.GetAllPosts)
+	rg.GET("", r.PostHandler.GetPostsFromTags)
 }
 
 func (r *PostRouter) PostMiddlewareRoutes(rg *gin.RouterGroup) {

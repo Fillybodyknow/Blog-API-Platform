@@ -75,3 +75,18 @@ func (h *PostHandler) GetMePosts(c *gin.Context) {
 
 	c.JSON(200, gin.H{"posts": posts})
 }
+
+func (h *PostHandler) GetPostsFromTags(c *gin.Context) {
+
+	tags := c.Query("tags")
+
+	tagSplit := strings.Split(tags, ",")
+
+	posts, err := h.PostServiceInterface.GetPostsFromTags(tagSplit)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"posts": posts})
+}
