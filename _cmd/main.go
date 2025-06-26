@@ -36,6 +36,10 @@ func main() {
 	postHandler := handler.NewPostHandler(postService)
 	postRouter := router.NewPostRouter(postHandler)
 
+	CommentService := service.NewCommentService(postRepo)
+	CommentHandler := handler.NewCommentHandler(CommentService)
+	CommentRouter := router.NewCommentRouter(CommentHandler)
+
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -47,6 +51,8 @@ func main() {
 	postGroup := api.Group("/posts")
 	postRouter.PostRoutes(postGroup)
 	postRouter.PostMiddlewareRoutes(postGroup)
+
+	CommentRouter.CommentRoutes(postGroup)
 
 	port := os.Getenv("PORT")
 	r.Run(":" + port)
