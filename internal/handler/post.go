@@ -109,3 +109,30 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 
 	c.JSON(200, gin.H{"post": post})
 }
+
+func (h *PostHandler) EditPost(c *gin.Context) {
+
+	var input models.PostInput
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	idStr := c.Param("id")
+	UserID, _ := c.Get("user_id")
+	Role, _ := c.Get("role")
+
+	EditForm := models.Post{
+		Title:   input.Title,
+		Content: input.Content,
+		Tags:    strings.Split(input.Tags, ","),
+	}
+
+	err := h.PostServiceInterface.EditMePost(&EditForm, Role.(string), UserID.(string), idStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Post edited successfully"})
+}

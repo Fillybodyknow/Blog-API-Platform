@@ -16,6 +16,7 @@ type PostRepositoryInterface interface {
 	FindByAuthorID(ctx context.Context, AuthorId primitive.ObjectID) ([]models.Post, error)
 	FindByTags(ctx context.Context, tags []string) ([]models.Post, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (*models.Post, error)
+	Update(ctx context.Context, id primitive.ObjectID, post *models.Post) error
 }
 
 type PostRepository struct {
@@ -114,4 +115,16 @@ func (r *PostRepository) FindByID(ctx context.Context, id primitive.ObjectID) (*
 	}
 	return &post, nil
 
+}
+
+func (r *PostRepository) Update(ctx context.Context, id primitive.ObjectID, post *models.Post) error {
+	update := bson.M{
+		"$set": bson.M{
+			"title":   post.Title,
+			"content": post.Content,
+			"tags":    post.Tags,
+		},
+	}
+	_, err := r.Collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	return err
 }

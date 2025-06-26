@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/Fillybodyknow/blog-api/internal/models"
@@ -16,6 +17,7 @@ type PostServiceInterface interface {
 	GetAuthorPosts(AuthorID primitive.ObjectID) ([]models.Post, error)
 	GetPostsFromTags(tags []string) ([]models.Post, error)
 	GetPostByID(id primitive.ObjectID) (*models.Post, error)
+	EditMePost(post *models.Post, role string, UserIDStr string, PostIDStr string) error
 }
 
 type PostService struct {
@@ -107,4 +109,56 @@ func (s *PostService) GetPostByID(id primitive.ObjectID) (*models.Post, error) {
 		return nil, errors.New("ไม่พบโพสต์")
 	}
 	return post, nil
+}
+
+func (s *PostService) EditMePost(post *models.Post, role string, UserIDStr string, PostIDStr string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	UserID, err := primitive.ObjectIDFromHex(UserIDStr)
+	if err != nil {
+		return err
+	}
+
+	PostID, err := primitive.ObjectIDFromHex(PostIDStr)
+	if err != nil {
+		return err
+	}
+
+	PostByID, err := s.PostRepository.FindByID(ctx, PostID)
+	if err != nil {
+		return err
+	}
+	if PostByID == nil {
+		return errors.New("ไม่พบโพสต์ที่ต้องการแก้ไข")
+	}
+
+	if PostByID.AuthorID != UserID {
+		return errors.New("คุณไม่สามารถแก้ไขโพสต์ของผู้อื่นได้")
+	}
+
+	if role != "editor" && role != "admin" {
+		return errors.New("คุณไม่สามารถแก้ไขโพสต์ได้เนื่องจากยังไม่ยืนยันตัวตน")
+	}
+
+	if err := s.PostRepository.Update(ctx, PostID, post); err != nil {
+		return errors.New("ไม่สามารถแก้ไขโพสต์ได้ ขออภัยในความไม่สะดวก")
+	}
+
+	for _, tagName := range post.Tags {
+		tagName = strings.TrimSpace(tagName)
+
+		existingTag, err := s.TagRepository.FindTagByName(ctx, tagName)
+		if err != nil {
+			return errors.New("เกิดข้อผิดพลาดในการตรวจสอบแท็ก")
+		}
+		if existingTag == nil {
+			newTag := models.Tag{Name: tagName}
+			if err := s.TagRepository.InsertTag(ctx, &newTag); err != nil {
+				return errors.New("เกิดข้อผิดพลาดในการสร้างแท็กใหม่")
+			}
+		}
+	}
+
+	return nil
 }
