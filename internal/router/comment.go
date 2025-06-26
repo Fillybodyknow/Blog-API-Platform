@@ -16,5 +16,6 @@ func NewCommentRouter(commentHandler *handler.CommentHandler) *CommentRouter {
 
 func (r *CommentRouter) CommentRoutes(rg *gin.RouterGroup) {
 	rg.Use(middleware.AuthMiddleware())
-	rg.POST("/:id/comment", r.CommentHandler.Comment)
+	rg.POST("/:post_id/comment", r.CommentHandler.Comment)
+	rg.PUT("/:post_id/comment/:comment_id", r.CommentHandler.EditComment)
 }

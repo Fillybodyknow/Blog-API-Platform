@@ -22,7 +22,7 @@ func (h *CommentHandler) Comment(c *gin.Context) {
 	}
 
 	UserID, _ := c.Get("user_id")
-	PostID := c.Param("id")
+	PostID := c.Param("post_id")
 
 	err := h.CommentServiceInterface.Comment(input.Content, PostID, UserID.(string))
 	if err != nil {
@@ -32,4 +32,23 @@ func (h *CommentHandler) Comment(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Comment created successfully"})
 
+}
+
+func (h *CommentHandler) EditComment(c *gin.Context) {
+	var input models.CommentInput
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	PostID := c.Param("post_id")
+	CommentID := c.Param("comment_id")
+	UserID, _ := c.Get("user_id")
+
+	err := h.CommentServiceInterface.EditComment(input.Content, PostID, CommentID, UserID.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Comment edited successfully"})
 }

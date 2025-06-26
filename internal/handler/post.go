@@ -93,7 +93,7 @@ func (h *PostHandler) GetPostsFromTags(c *gin.Context) {
 
 func (h *PostHandler) GetPostByID(c *gin.Context) {
 
-	idStr := c.Param("id")
+	idStr := c.Param("post_id")
 
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
@@ -118,7 +118,7 @@ func (h *PostHandler) EditPost(c *gin.Context) {
 		return
 	}
 
-	idStr := c.Param("id")
+	idStr := c.Param("post_id")
 	UserID, _ := c.Get("user_id")
 	Role, _ := c.Get("role")
 
@@ -139,7 +139,7 @@ func (h *PostHandler) EditPost(c *gin.Context) {
 
 func (h *PostHandler) DeletePost(c *gin.Context) {
 
-	idStr := c.Param("id")
+	idStr := c.Param("post_id")
 	UserID, _ := c.Get("user_id")
 	Role, _ := c.Get("role")
 

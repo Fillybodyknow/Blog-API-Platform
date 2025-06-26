@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Fillybodyknow/blog-api/internal/models"
@@ -11,6 +12,7 @@ import (
 
 type CommentServiceInterface interface {
 	Comment(comment string, PostIDStr string, UserID string) error
+	EditComment(comment string, PostIDStr string, CommentIDStr string, UserIDStr string) error
 }
 
 type CommentService struct {
@@ -35,4 +37,29 @@ func (s *CommentService) Comment(comment string, PostIDStr string, UserIDStr str
 	}
 	err := s.CommentRepo.InsertComment(ctx, &commentModel, PostID)
 	return err
+}
+
+func (s *CommentService) EditComment(comment string, PostIDStr string, CommentIDStr string, UserIDStr string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	PostID, _ := primitive.ObjectIDFromHex(PostIDStr)
+	UserID, _ := primitive.ObjectIDFromHex(UserIDStr)
+	CommentID, _ := primitive.ObjectIDFromHex(CommentIDStr)
+
+	IsOwnerComment, err := s.CommentRepo.GetCommentByID(ctx, PostID, CommentID)
+	if err != nil {
+		return err
+	}
+
+	if IsOwnerComment.UserID != UserID {
+		return errors.New("คุณไม่สามารถแก้ไข Comment ของคนอื่นได้ ID คุณคือ " + IsOwnerComment.UserID.Hex() + " ID ของ Comment คือ " + IsOwnerComment.UserID.Hex())
+	}
+
+	err = s.CommentRepo.UpdateComment(ctx, comment, PostID, CommentID)
+	if err != nil {
+		return errors.New("เกิดข้อผิดพลาดในการแก้ไข Comment ขออภัยในความไม่สะดวก")
+	}
+
+	return nil
 }
