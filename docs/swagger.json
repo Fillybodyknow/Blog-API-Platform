@@ -1,0 +1,186 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "ระบบ Blog + Auth + OTP + Like/Comment ที่เขียนด้วย Go + Gin",
+        "title": "Blog API Platform",
+        "contact": {
+            "name": "Filly",
+            "email": "fillybodyknow@gmail.com"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "เข้าสู่ระบบด้วย Username,Email และ Password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "เข้าสู่ระบบ",
+                "parameters": [
+                    {
+                        "description": "ข้อมูลผู้ใช้",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginUserInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "สร้างผู้ใช้งานใหม่ด้วย Username, Email และ Password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "สมัครสมาชิก",
+                "parameters": [
+                    {
+                        "description": "ข้อมูลผู้ใช้ใหม่",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/verify-otp": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ยืนยัน OTP ของผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "ยืนยัน OTP",
+                "parameters": [
+                    {
+                        "description": "ข้อมูล OTP",
+                        "name": "otp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.VerifyOTPInput"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/verify_otp": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ส่ง OTP ไปยัง Email ของผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "ส่ง OTP",
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "models.LoginUserInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "Strong@Password123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "blog or blogg@example.com"
+                }
+            }
+        },
+        "models.RegisterInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "blogg@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "Strong@Password123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "blog"
+                }
+            }
+        },
+        "models.VerifyOTPInput": {
+            "type": "object",
+            "required": [
+                "otp"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

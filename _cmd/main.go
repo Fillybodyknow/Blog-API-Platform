@@ -1,8 +1,24 @@
+// @title           Blog API Platform
+// @version         1.0
+// @description     ระบบ Blog + Auth + OTP + Like/Comment ที่เขียนด้วย Go + Gin
+// @contact.name    Filly
+// @contact.email   fillybodyknow@gmail.com
+// @license.name    MIT
+// @host      localhost:8080
+// @BasePath  /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 package main
 
 import (
 	"log"
 	"os"
+
+	_ "github.com/Fillybodyknow/blog-api/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/Fillybodyknow/blog-api/internal/config"
 	"github.com/Fillybodyknow/blog-api/internal/handler"
@@ -45,6 +61,7 @@ func main() {
 	LikeRouter := router.NewLikeRouter(LikeHandler)
 
 	r := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := r.Group("/api")
 
