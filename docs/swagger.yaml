@@ -1,0 +1,124 @@
+basePath: /api
+definitions:
+  models.LoginUserInput:
+    properties:
+      password:
+        example: Strong@Password123
+        type: string
+      username:
+        example: blog or blogg@example.com
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.RegisterInput:
+    properties:
+      email:
+        example: blogg@example.com
+        type: string
+      password:
+        example: Strong@Password123
+        type: string
+      username:
+        example: blog
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.VerifyOTPInput:
+    properties:
+      otp:
+        example: "123456"
+        type: string
+    required:
+    - otp
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: fillybodyknow@gmail.com
+    name: Filly
+  description: ระบบ Blog + Auth + OTP + Like/Comment ที่เขียนด้วย Go + Gin
+  license:
+    name: MIT
+  title: Blog API Platform
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: เข้าสู่ระบบด้วย Username,Email และ Password
+      parameters:
+      - description: ข้อมูลผู้ใช้
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginUserInput'
+      produces:
+      - application/json
+      responses: {}
+      summary: เข้าสู่ระบบ
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: สร้างผู้ใช้งานใหม่ด้วย Username, Email และ Password
+      parameters:
+      - description: ข้อมูลผู้ใช้ใหม่
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterInput'
+      produces:
+      - application/json
+      responses: {}
+      summary: สมัครสมาชิก
+      tags:
+      - Auth
+  /auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: ยืนยัน OTP ของผู้ใช้
+      parameters:
+      - description: ข้อมูล OTP
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/models.VerifyOTPInput'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: ยืนยัน OTP
+      tags:
+      - Auth
+  /auth/verify_otp:
+    get:
+      consumes:
+      - application/json
+      description: ส่ง OTP ไปยัง Email ของผู้ใช้
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: ส่ง OTP
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
