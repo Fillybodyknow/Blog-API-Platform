@@ -8,6 +8,7 @@ Blog API Platform คือระบบสำหรับสร้างแล�
 ## 🚀 Features
 
 - ✅ ลงทะเบียน / เข้าสู่ระบบ (Register / Login)
+- ✅ Authentication + JWT
 - 🔒 ยืนยันตัวตนด้วย OTP (OTP Verification)
 - 📝 สร้าง / แก้ไข / ลบ บทความ (CRUD Posts)
 - ❤️ กด Like / ยกเลิก Like
@@ -24,6 +25,8 @@ Blog API Platform คือระบบสำหรับสร้างแล�
 | MongoDB    | ฐานข้อมูล NoSQL   |
 | Docker     | Containerization   |
 | Swagger    | API Documentation  |
+| JWT (JSON Web Token) | Authentication|
+| godotenv | Env |
 
 ---
 
