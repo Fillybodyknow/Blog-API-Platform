@@ -1,41 +1,4 @@
 basePath: /api
-definitions:
-  models.LoginUserInput:
-    properties:
-      password:
-        example: Strong@Password123
-        type: string
-      username:
-        example: blog or blogg@example.com
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  models.RegisterInput:
-    properties:
-      email:
-        example: blogg@example.com
-        type: string
-      password:
-        example: Strong@Password123
-        type: string
-      username:
-        example: blog
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  models.VerifyOTPInput:
-    properties:
-      otp:
-        example: "123456"
-        type: string
-    required:
-    - otp
-    type: object
 host: localhost:8080
 info:
   contact:
@@ -50,51 +13,69 @@ paths:
   /auth/login:
     post:
       consumes:
-      - application/json
-      description: เข้าสู่ระบบด้วย Username,Email และ Password
+      - application/x-www-form-urlencoded
+      description: เข้าสู่ระบบด้วย Username/Email และ Password
       parameters:
-      - description: ข้อมูลผู้ใช้
-        in: body
-        name: user
+      - description: Username/Email*
+        example: '"blog or blogg@example.com"'
+        in: formData
+        name: username
         required: true
-        schema:
-          $ref: '#/definitions/models.LoginUserInput'
+        type: string
+      - description: Password*
+        example: '"Strong@Password123"'
+        in: formData
+        name: password
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
       summary: เข้าสู่ระบบ
       tags:
-      - Auth
+      - Authication
   /auth/register:
     post:
       consumes:
-      - application/json
+      - application/x-www-form-urlencoded
       description: สร้างผู้ใช้งานใหม่ด้วย Username, Email และ Password
       parameters:
-      - description: ข้อมูลผู้ใช้ใหม่
-        in: body
-        name: user
+      - description: Email*
+        example: '"blogg@example.com"'
+        in: formData
+        name: email
         required: true
-        schema:
-          $ref: '#/definitions/models.RegisterInput'
+        type: string
+      - description: Username*
+        example: '"blog"'
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password*
+        example: '"Strong@Password123"'
+        in: formData
+        name: password
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
       summary: สมัครสมาชิก
       tags:
-      - Auth
+      - Authication
   /auth/verify-otp:
     post:
       consumes:
-      - application/json
+      - application/x-www-form-urlencoded
       description: ยืนยัน OTP ของผู้ใช้
       parameters:
-      - description: ข้อมูล OTP
-        in: body
+      - description: OTP*
+        example: '"123456"'
+        in: formData
         name: otp
         required: true
-        schema:
-          $ref: '#/definitions/models.VerifyOTPInput'
+        type: string
       produces:
       - application/json
       responses: {}
@@ -102,7 +83,7 @@ paths:
       - BearerAuth: []
       summary: ยืนยัน OTP
       tags:
-      - Auth
+      - Authication
   /auth/verify_otp:
     get:
       consumes:
@@ -115,7 +96,278 @@ paths:
       - BearerAuth: []
       summary: ส่ง OTP
       tags:
-      - Auth
+      - Authication
+  /posts:
+    get:
+      description: แสดง Post ตาม Tags ไม่ต้องยืนยันตัวตน
+      parameters:
+      - description: Tags
+        example: '"tag1,tag2,tag3"'
+        in: query
+        name: tags
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: แสดง Post ตาม Tags
+      tags:
+      - Post
+  /posts/:
+    get:
+      description: แสดง Post ทั้งหมด ไม่ต้องยืนยันตัวตน
+      produces:
+      - application/json
+      responses: {}
+      summary: แสดง Post ทั้งหมด
+      tags:
+      - Post
+  /posts/{post_id}:
+    delete:
+      description: ลบ Post ของตัวเอง ต้องยืนยันตัวตนก่อนจึงจะสามารถลบ Post ได้
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: ลบ Post ของตัวเอง
+      tags:
+      - Post
+    get:
+      description: แสดง Post ตาม ID ไม่ต้องยืนยันตัวตน
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: แสดง Post ตาม ID
+      tags:
+      - Post
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: แก้ไข Post ของตัวเอง ต้องยืนยันตัวตนก่อนจึงจะสามารถแก้ไข Post ได้
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: Title
+        example: '"Hello World"'
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Content
+        example: '"Hello World"'
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Tags
+        example: '"tag1,tag2,tag3"'
+        in: formData
+        name: tags
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: แก้ไข Post ของตัวเอง
+      tags:
+      - Post
+  /posts/{post_id}/comment:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: สร้าง Comment ด้วยการกรอก Content
+      parameters:
+      - description: Post ID
+        example: '"123456789012345678901234"'
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: Content
+        example: '"Hello World"'
+        in: formData
+        name: content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Comment
+      tags:
+      - Comment
+  /posts/{post_id}/comment/{comment_id}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: ลบ Comment ของตัวเอง
+      parameters:
+      - description: Post ID
+        example: '"123456789012345678901234"'
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: Comment ID
+        example: '"123456789012345678901234"'
+        in: path
+        name: comment_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Delete Comment
+      tags:
+      - Comment
+    put:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: แก้ไข Comment ด้วนการกรอก Content
+      parameters:
+      - description: Post ID
+        example: '"123456789012345678901234"'
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: Comment ID
+        example: '"123456789012345678901234"'
+        in: path
+        name: comment_id
+        required: true
+        type: string
+      - description: Content
+        example: '"Hello World"'
+        in: formData
+        name: content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Edit Comment
+      tags:
+      - Comment
+  /posts/{post_id}/like:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: UnLike โพสต์
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: UnLike
+      tags:
+      - Like
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Like โพสต์
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Like
+      tags:
+      - Like
+  /posts/create:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: ต้องยืนยันตัวตนก่อนจึงจะสามารถสร้าง Post ได้
+      parameters:
+      - description: Title
+        example: '"Hello World"'
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Content
+        example: '"Hello World Content"'
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Tags
+        example: '"tag1,tag2,tag3"'
+        in: formData
+        name: tags
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: สร้าง Post
+      tags:
+      - Post
+  /posts/me:
+    get:
+      description: แสดง Post ของตัวเอง ไม่ต้องยืนยันตัวตน
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: แสดง Post ของตัวเอง
+      tags:
+      - Post
 securityDefinitions:
   BearerAuth:
     in: header
