@@ -20,10 +20,12 @@ func NewAuthHandler(authService service.AuthServiceInterface) *AuthHandler {
 // RegisterUser godoc
 // @Summary สมัครสมาชิก
 // @Description สร้างผู้ใช้งานใหม่ด้วย Username, Email และ Password
-// @Tags Auth
-// @Accept json
+// @Tags Authication
+// @Accept application/x-www-form-urlencoded
 // @Produce json
-// @Param user body models.RegisterInput true "ข้อมูลผู้ใช้ใหม่"
+// @Param email formData string true "Email*" example("blogg@example.com")
+// @Param username formData string true "Username*" example("blog")
+// @Param password formData string true "Password*" example("Strong@Password123")
 // @Router /auth/register [post]
 func (h *AuthHandler) RegisterUser(c *gin.Context) {
 
@@ -52,13 +54,14 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 
 }
 
-// RegisterUser godoc
+// LoginUser godoc
 // @Summary เข้าสู่ระบบ
-// @Description เข้าสู่ระบบด้วย Username,Email และ Password
-// @Tags Auth
-// @Accept json
+// @Description เข้าสู่ระบบด้วย Username/Email และ Password
+// @Tags Authication
+// @Accept application/x-www-form-urlencoded
 // @Produce json
-// @Param user body models.LoginUserInput true "ข้อมูลผู้ใช้"
+// @Param username formData string true "Username/Email*" example("blog or blogg@example.com")
+// @Param password formData string true "Password*" example("Strong@Password123")
 // @Router /auth/login [post]
 func (h *AuthHandler) LoginUser(c *gin.Context) {
 	var input models.LoginUserInput
@@ -82,7 +85,7 @@ func (h *AuthHandler) LoginUser(c *gin.Context) {
 // SendOTP godoc
 // @Summary ส่ง OTP
 // @Description ส่ง OTP ไปยัง Email ของผู้ใช้
-// @Tags Auth
+// @Tags Authication
 // @Security BearerAuth
 // @Accept json
 // @Produce json
@@ -106,11 +109,11 @@ func (h *AuthHandler) OTP(c *gin.Context) {
 // VerifyOTP godoc
 // @Summary ยืนยัน OTP
 // @Description ยืนยัน OTP ของผู้ใช้
-// @Tags Auth
+// @Tags Authication
 // @Security BearerAuth
-// @Accept json
+// @Accept application/x-www-form-urlencoded
 // @Produce json
-// @Param otp body models.VerifyOTPInput true "ข้อมูล OTP"
+// @Param otp formData string true "OTP*" example("123456")
 // @Router /auth/verify-otp [post]
 func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	UserIDStr, _ := c.Get("user_id")

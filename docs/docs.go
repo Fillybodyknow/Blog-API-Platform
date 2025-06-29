@@ -23,26 +23,33 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "เข้าสู่ระบบด้วย Username,Email และ Password",
+                "description": "เข้าสู่ระบบด้วย Username/Email และ Password",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Authication"
                 ],
                 "summary": "เข้าสู่ระบบ",
                 "parameters": [
                     {
-                        "description": "ข้อมูลผู้ใช้",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.LoginUserInput"
-                        }
+                        "type": "string",
+                        "example": "\"blog or blogg@example.com\"",
+                        "description": "Username/Email*",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Strong@Password123\"",
+                        "description": "Password*",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -52,24 +59,39 @@ const docTemplate = `{
             "post": {
                 "description": "สร้างผู้ใช้งานใหม่ด้วย Username, Email และ Password",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Authication"
                 ],
                 "summary": "สมัครสมาชิก",
                 "parameters": [
                     {
-                        "description": "ข้อมูลผู้ใช้ใหม่",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.RegisterInput"
-                        }
+                        "type": "string",
+                        "example": "\"blogg@example.com\"",
+                        "description": "Email*",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"blog\"",
+                        "description": "Username*",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Strong@Password123\"",
+                        "description": "Password*",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -84,24 +106,23 @@ const docTemplate = `{
                 ],
                 "description": "ยืนยัน OTP ของผู้ใช้",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Authication"
                 ],
                 "summary": "ยืนยัน OTP",
                 "parameters": [
                     {
-                        "description": "ข้อมูล OTP",
+                        "type": "string",
+                        "example": "\"123456\"",
+                        "description": "OTP*",
                         "name": "otp",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.VerifyOTPInput"
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -122,62 +143,417 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Auth"
+                    "Authication"
                 ],
                 "summary": "ส่ง OTP",
                 "responses": {}
             }
-        }
-    },
-    "definitions": {
-        "models.LoginUserInput": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "Strong@Password123"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "blog or blogg@example.com"
+        },
+        "/posts": {
+            "get": {
+                "description": "แสดง Post ตาม Tags ไม่ต้องยืนยันตัวตน",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "แสดง Post ตาม Tags",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"tag1,tag2,tag3\"",
+                        "description": "Tags",
+                        "name": "tags",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/posts/": {
+            "get": {
+                "description": "แสดง Post ทั้งหมด ไม่ต้องยืนยันตัวตน",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "แสดง Post ทั้งหมด",
+                "responses": {}
+            }
+        },
+        "/posts/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ต้องยืนยันตัวตนก่อนจึงจะสามารถสร้าง Post ได้",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "สร้าง Post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"Hello World\"",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Hello World Content\"",
+                        "description": "Content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"tag1,tag2,tag3\"",
+                        "description": "Tags",
+                        "name": "tags",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/posts/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "แสดง Post ของตัวเอง ไม่ต้องยืนยันตัวตน",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "แสดง Post ของตัวเอง",
+                "responses": {}
+            }
+        },
+        "/posts/{post_id}": {
+            "get": {
+                "description": "แสดง Post ตาม ID ไม่ต้องยืนยันตัวตน",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "แสดง Post ตาม ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "แก้ไข Post ของตัวเอง ต้องยืนยันตัวตนก่อนจึงจะสามารถแก้ไข Post ได้",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Post"
+                ],
+                "summary": "แก้ไข Post ของตัวเอง",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Hello World\"",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Hello World\"",
+                        "description": "Content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"tag1,tag2,tag3\"",
+                        "description": "Tags",
+                        "name": "tags",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ลบ Post ของตัวเอง ต้องยืนยันตัวตนก่อนจึงจะสามารถลบ Post ได้",
+                "tags": [
+                    "Post"
+                ],
+                "summary": "ลบ Post ของตัวเอง",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/posts/{post_id}/comment": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "สร้าง Comment ด้วยการกรอก Content",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Create Comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"123456789012345678901234\"",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Hello World\"",
+                        "description": "Content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             }
         },
-        "models.RegisterInput": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "blogg@example.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "Strong@Password123"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "blog"
-                }
+        "/posts/{post_id}/comment/{comment_id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "แก้ไข Comment ด้วนการกรอก Content",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Edit Comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"123456789012345678901234\"",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"123456789012345678901234\"",
+                        "description": "Comment ID",
+                        "name": "comment_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"Hello World\"",
+                        "description": "Content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ลบ Comment ของตัวเอง",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment"
+                ],
+                "summary": "Delete Comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"123456789012345678901234\"",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"123456789012345678901234\"",
+                        "description": "Comment ID",
+                        "name": "comment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
-        "models.VerifyOTPInput": {
-            "type": "object",
-            "required": [
-                "otp"
-            ],
-            "properties": {
-                "otp": {
-                    "type": "string",
-                    "example": "123456"
+        "/posts/{post_id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Like โพสต์",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "summary": "Like",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "UnLike โพสต์",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Like"
+                ],
+                "summary": "UnLike",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             }
         }
