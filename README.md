@@ -47,6 +47,9 @@ cd blog-api
 cp .env.example .env
 # หรือแก้ค่าใน .env ตามต้องการ
 
+# 3. ตั้งค่า SMTP ใน .env
+ไปหัวข้อ "การตั้งค่า SMTP สำหรับส่ง OTP"
+
 # 3. สั่งรันด้วย Docker
 docker-compose up --build
 
