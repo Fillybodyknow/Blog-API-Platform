@@ -60,7 +60,7 @@ docker-compose up --build
 
 1. ไปที่หน้า [Google Account Security](https://myaccount.google.com/security)
 2. เปิดใช้งาน **2-Step Verification (2FA)** หากยังไม่ได้เปิด
-3. หลังจากเปิด 2FA แล้ว จะมีเมนู **App Passwords** ปรากฏขึ้น
+3. หลังจากเปิด 2FA แล้ว จะมีเมนู **App Passwords** ปรากฏขึ้น หากยังไม่เคยสร้าง App Passwords จะไม่แสดงให้เห็น ให้เข้าลิงค์นี้โดยตรงแทน [App Passwords](https://myaccount.google.com/apppasswords)
 4. เข้าไปที่ **App Passwords**
 5. สร้างรหัสใหม่ โดย:
    - App: เลือก "Other (Custom name)" → พิมพ์ `Blog API`
