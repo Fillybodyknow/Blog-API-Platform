@@ -71,7 +71,7 @@ docker-compose up --build
 
 ```env
 SMTP_EMAIL=your-email@gmail.com
-SMTP_PASS=abcd efgh ijkl mnop
+SMTP_PASS=abcdefghijklmnop
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 ```
