@@ -64,7 +64,19 @@ paths:
       summary: สมัครสมาชิก
       tags:
       - Authication
-  /auth/verify-otp:
+  /auth/verify_otp:
+    get:
+      consumes:
+      - application/json
+      description: ส่ง OTP ไปยัง Email ของผู้ใช้
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: ส่ง OTP
+      tags:
+      - Authication
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -82,19 +94,6 @@ paths:
       security:
       - BearerAuth: []
       summary: ยืนยัน OTP
-      tags:
-      - Authication
-  /auth/verify_otp:
-    get:
-      consumes:
-      - application/json
-      description: ส่ง OTP ไปยัง Email ของผู้ใช้
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      summary: ส่ง OTP
       tags:
       - Authication
   /posts:

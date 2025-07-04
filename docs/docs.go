@@ -97,7 +97,26 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/auth/verify-otp": {
+        "/auth/verify_otp": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ส่ง OTP ไปยัง Email ของผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authication"
+                ],
+                "summary": "ส่ง OTP",
+                "responses": {}
+            },
             "post": {
                 "security": [
                     {
@@ -125,27 +144,6 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
-            }
-        },
-        "/auth/verify_otp": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "ส่ง OTP ไปยัง Email ของผู้ใช้",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authication"
-                ],
-                "summary": "ส่ง OTP",
                 "responses": {}
             }
         },
