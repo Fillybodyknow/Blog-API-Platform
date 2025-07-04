@@ -114,7 +114,7 @@ func (h *AuthHandler) OTP(c *gin.Context) {
 // @Accept application/x-www-form-urlencoded
 // @Produce json
 // @Param otp formData string true "OTP*" example("123456")
-// @Router /auth/verify-otp [post]
+// @Router /auth/verify_otp [post]
 func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	UserIDStr, _ := c.Get("user_id")
 	objID, err := primitive.ObjectIDFromHex(UserIDStr.(string))
