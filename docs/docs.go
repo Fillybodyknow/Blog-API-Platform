@@ -568,9 +568,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "blog-api-platform.onrender.com",
 	BasePath:         "/api",
-	Schemes:          []string{},
+	Schemes:          []string{"https"},
 	Title:            "Blog API Platform",
 	Description:      "ระบบ Blog + Auth + OTP + Like/Comment ที่เขียนด้วย Go + Gin",
 	InfoInstanceName: "swagger",
