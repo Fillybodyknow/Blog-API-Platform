@@ -1,5 +1,5 @@
 basePath: /api
-host: localhost:8080
+host: https://blog-api-platform.onrender.com
 info:
   contact:
     email: fillybodyknow@gmail.com
